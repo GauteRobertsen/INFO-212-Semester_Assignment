@@ -1,0 +1,26 @@
+/* Make calendar cells square */
+.calendar-cell {
+  aspect-ratio: 1 / 1;       /* keeps square shape */
+  border: 1px solid #ddd;
+  padding: 4px;
+  position: relative;        /* for positioning day number */
+  text-align: left;          /* text content starts from top-left */
+  overflow: hidden;
+}
+
+/* Style for the day number (top-right) */
+.calendar-day-number {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Extra space for notes */
+.calendar-content {
+  margin-top: 16px;          /* pushes notes under the day number */
+  font-size: 0.8rem;
+  line-height: 1rem;
+}
