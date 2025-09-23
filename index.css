@@ -24,3 +24,18 @@
   font-size: 0.8rem;
   line-height: 1rem;
 }
+
+
+.calendar-day-number {
+    font-weight: bold;
+    margin-bottom: 4px; /* luft mellom dagnummer og events */
+}
+
+.calendar-event {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.8rem;
+    margin-bottom: 1px;
+}
+
