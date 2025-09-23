@@ -1,1 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Org Event Planner</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { margin-bottom: 0.2em; }
+    .error { color: red; font-size: 0.9em; }
+    .event { border: 1px solid #ccc; padding: 10px; margin: 8px 0; border-radius: 6px; }
+    .pending { background: #fff8dc; }
+    .approved { background: #e6ffe6; }
+    .cancelled { background: #ffe6e6; }
+    label { display: block; margin-top: 8px; }
+    input, textarea, select { width: 100%; padding: 5px; margin-top: 2px; }
+    button { margin-top: 10px; padding: 6px 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Student Org Event Planner</h1>
+
+<hr>
+
+<h2>Create Event</h2>
+<form id="eventForm">
+  <label>Title* <input type="text" id="title"></label>
+  <label>Date & Time* <input type="datetime-local" id="datetime"></label>
+  <label>Location* <input type="text" id="location"></label>
+  <label>Description* <textarea id="description"></textarea></label>
+  <label>Organization*
+    <select id="orgId">
+      <option value="o1">SVI Volleyball</option>
+      <option value="o2">Samfunnslogen</option>
+      <option value="o3">Enter</option>
+    </select>
+  </label>
+  <button type="submit">Submit Event</button>
+  <div id="formError" class="error"></div>
+</form>
+
+<hr>
+
+<h2>Event List</h2>
+<div id="eventList"></div>
+
+<script>
+  // --- JSON-like data ---
+  const data = {
+    team: {
+      scrumMaster: "Henrik",
+      customerRep: "Carlos",
+      seniorDev: "Jakob",
+      juniorDev: "Gaute"
+    },
+    userStories: [
+      { role: "student", story: "I would like to have all my activities easily available in a calendar so I don’t have to keep track myself.", difficulty: "EASY", priority: 2 },
+      { role: "student", story: "I usually miss events because they are badly advertised, I would like a notification.", difficulty: "EASY", priority: 3 },
+      { role: "student-team", story: "Some members miss practices because of schedule changes.", difficulty: "EASY", priority: 4 },
+      { role: "student-organization", story: "We have a lot of people showing up without RSVP, causing shortages.", difficulty: "MEDIUM", priority: 5 },
+      { role: "organizer", story: "I want to create an event with details (date, time, location, description).", difficulty: "MEDIUM", priority: 1 },
+      { role: "admin", story: "I want to approve events before they go public.", difficulty: "HARD", priority: 8 },
+      { role: "admin", story: "I want to manage student organizations so the system stays up to date.", difficulty: "MEDIUM", priority: 6 },
+      { role: "admin", story: "I want to archive past events so the calendar only shows relevant info.", difficulty: "HARD", priority: 9 },
+      { role: "student-organizer", story: "I want to edit or cancel an event so changes are reflected immediately.", difficulty: "MEDIUM", priority: 7 }
+    ],
+    events: [
+      {
+        id: "e1",
+        title: "Trening",
+        datetime: new Date(Date.now() + 86400000).toISOString().slice(0,16),
+        location: "Studentsenteret  ",
+        description: "Trening.",
+        orgId: "o1",
+        status: "approved"
+      }
+    ],
+    // Simulated logged-in user (Organizer, permission for o1 only)
+    currentUser: { role: "Organizer", orgPermissions: ["o1"] }
+  };
+
+  // --- Render Events ---
+  function renderEvents() {
+    const list = document.getElementById("eventList");
+    list.innerHTML = "";
+    data.events.forEach(e => {
+      const div = document.createElement("div");
+      div.className = "event " + e.status;
+      div.innerHTML = `
+        <strong>${e.title}</strong> (${e.status})<br>
+        ${new Date(e.datetime).toLocaleString()}<br>
+        ${e.location}<br>
+        ${e.description}
+      `;
+      list.appendChild(div);
+    });
+  }
+  renderEvents();
+
+  // --- Form Submission with PRIO 1 Validation ---
+  document.getElementById("eventForm").addEventListener("submit", function(ev) {
+    ev.preventDefault();
+    const err = document.getElementById("formError");
+    err.textContent = "";
+
+    const title = document.getElementById("title").value.trim();
+    const datetime = document.getElementById("datetime").value;
+    const location = document.getElementById("location").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const orgId = document.getElementById("orgId").value;
+
+    // E1: Missing info
+    if (!title || !datetime || !location || !description) {
+      err.textContent = "Error: Missing required information.";
+      return;
+    }
+
+    // E2: Invalid past date/time
+    if (new Date(datetime) < new Date()) {
+      err.textContent = "Error: Date/time cannot be in the past.";
+      return;
+    }
+
+    // E3: No permission
+    if (data.currentUser.role === "Organizer" && !data.currentUser.orgPermissions.includes(orgId)) {
+      err.textContent = "Error: You don’t have permission to post for this organization.";
+      return;
+    }
+
+    // Success → add event
+    data.events.push({
+      id: "e" + (data.events.length + 1),
+      title, datetime, location, description,
+      orgId, status: "pending"
+    });
+    renderEvents();
+    this.reset();
+  });
+</script>
+
+</body>
+</html>
+
+
 
