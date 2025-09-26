@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Login / Signup</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; }
+    .hidden { display: none; }
+    form { margin-bottom: 1rem; }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; }
+    button { width: 100%; padding: 0.5rem; }
+    .toggle-link { color: blue; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1 id="form-title">Log In</h1>
+
+  <!-- Login form -->
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required>
+    <input type="password" id="login-password" placeholder="Password" required>
+    <button type="submit">Log In</button>
+    <span class="toggle-link" id="show-signup">Don’t have an account? Sign up</span>
+  </form>
+
+  <!-- Signup form (hidden initially) -->
+  <form id="signup-form" class="hidden">
+    <input type="email" id="signup-email" placeholder="Email" required>
+    <input type="password" id="signup-password" placeholder="Password" required>
+    <button type="submit">Sign Up</button>
+    <span class="toggle-link" id="show-login">Already have an account? Log in</span>
+  </form>
+
+  <p id="message"></p>
+
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8r4Q6c97Yk5Y9fHv2K04QmptL_U6Adds",
+      authDomain: "login-form-59de4.firebaseapp.com",
+      projectId: "login-form-59de4",
+      storageBucket: "login-form-59de4.appspot.com",
+      messagingSenderId: "524532626361",
+      appId: "1:524532626361:web:409c0a04698c30268bfc68"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Elements
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const showSignup = document.getElementById('show-signup');
+    const showLogin = document.getElementById('show-login');
+    const message = document.getElementById('message');
+    const formTitle = document.getElementById('form-title');
+
+    // Toggle forms
+    showSignup.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      signupForm.classList.remove('hidden');
+      formTitle.textContent = 'Sign Up';
+      message.textContent = '';
+    });
+    showLogin.addEventListener('click', () => {
+      signupForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      formTitle.textContent = 'Log In';
+      message.textContent = '';
+    });
+
+    // Handle login
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    // Check Firestore for admin status
+    const userDocRef = doc(db, "users", uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (userDocSnap.exists() && userDocSnap.data().isAdmin) {
+      // Admin user → redirect to admin_index.html
+      window.location.href = "admin_index.html";
+    } else {
+      // Regular user → redirect to normal index.html
+      window.location.href = "index.html";
+    }
+  } catch (error) {
+    message.textContent = "Error: " + error.message;
+  }
+});
+
+
+
+    // Handle signup
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          message.textContent = "Account created for: " + userCredential.user.email;
+          signupForm.reset();
+          // Optionally switch to login form automatically
+        })
+        .catch((error) => {
+          message.textContent = "Error: " + error.message;
+        });
+    });
+  </script>
+</body>
+</html>
+
