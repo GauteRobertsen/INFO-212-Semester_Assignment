@@ -1,5 +1,7 @@
-import { db } from './firebase.js';
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+// admin_calendar.js
+import { db, auth } from './firebase.js';
+import { collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // DOM Elements
 const monthYearEl = document.getElementById('monthYear');
@@ -7,45 +9,12 @@ const calendarDaysEl = document.getElementById('calendarDays');
 const calendarDatesEl = document.getElementById('calendarDates');
 const prevBtn = document.getElementById('prevMonth');
 const nextBtn = document.getElementById('nextMonth');
-const adminFilterEl = document.getElementById('adminFilter');
 
 const daysOfWeek = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
 let currentDate = new Date();
 
 let events = [];
-let adminMap = {};       // UID -> friendlyName
-let adminColors = {};    // UID -> color
-let activeAdmins = new Set();  // Which admins are selected in filter
-
-// Predefined colors for admins
-const COLORS = [
-    '#FF5733', '#33C1FF', '#33FF57', '#FF33A8', '#FFC733', '#8D33FF', '#33FFF3'
-];
-
-// Fetch admin users
-async function fetchAdmins() {
-    const usersCol = collection(db, "users");
-    const q = query(usersCol, where("isAdmin", "==", true));
-    const snapshot = await getDocs(q);
-    let i = 0;
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const uid = doc.id;
-        const email = data.email || uid;
-        const friendlyName = email.includes('@') ? email.split('@')[0] : email;
-        adminMap[uid] = friendlyName;
-        adminColors[uid] = COLORS[i % COLORS.length];
-        activeAdmins.add(uid); // Initially all admins active
-        i++;
-    });
-}
-
-// Fetch all events
-async function fetchEvents() {
-    const eventsCol = collection(db, "events");
-    const snapshot = await getDocs(eventsCol);
-    events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
+let currentUser = null; // uid til innlogget admin
 
 // Format time for display
 function formatTime(date) {
@@ -54,38 +23,15 @@ function formatTime(date) {
     return `${hours}:${minutes}`;
 }
 
-// Render filter checkboxes
-function renderFilter() {
-    adminFilterEl.innerHTML = '';
-    for (const [uid, name] of Object.entries(adminMap)) {
-        const div = document.createElement('div');
-        div.className = 'form-check';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'form-check-input';
-        checkbox.id = `filter-${uid}`;
-        checkbox.checked = activeAdmins.has(uid);
-
-        const label = document.createElement('label');
-        label.className = 'form-check-label';
-        label.htmlFor = `filter-${uid}`;
-        label.textContent = name;
-        label.style.color = adminColors[uid];
-
-        checkbox.addEventListener('change', () => {
-            if (checkbox.checked) activeAdmins.add(uid);
-            else activeAdmins.delete(uid);
-            renderCalendar();
-        });
-
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        adminFilterEl.appendChild(div);
-    }
+// Hent kun events for innlogget admin
+async function fetchEventsForAdmin(uid) {
+    const eventsCol = collection(db, "events");
+    const q = query(eventsCol, where("createdBy", "==", uid));
+    const snapshot = await getDocs(q);
+    events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
-// Render calendar
+// Render kalender
 function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -139,14 +85,13 @@ function renderCalendar() {
                 dayNumber.textContent = day;
                 col.appendChild(dayNumber);
 
-                // Events for this day and active admins
+                // Events for this day
                 const dayDate = new Date(year, month, day);
                 let dayEvents = events.filter(ev => {
                     const evDate = ev.datetime.toDate ? ev.datetime.toDate() : new Date(ev.datetime);
                     return evDate.getFullYear() === dayDate.getFullYear() &&
                            evDate.getMonth() === dayDate.getMonth() &&
-                           evDate.getDate() === dayDate.getDate() &&
-                           activeAdmins.has(ev.createdBy);
+                           evDate.getDate() === dayDate.getDate();
                 });
 
                 // Sort events by time
@@ -161,9 +106,7 @@ function renderCalendar() {
                     const evDate = ev.datetime.toDate ? ev.datetime.toDate() : new Date(ev.datetime);
                     const evDiv = document.createElement('div');
                     evDiv.className = 'calendar-event small text-truncate';
-                    const adminName = adminMap[ev.createdBy] || ev.createdBy;
                     evDiv.textContent = `${formatTime(evDate)} ${ev.title}`;
-                    evDiv.style.color = adminColors[ev.createdBy] || '#000';
                     col.appendChild(evDiv);
                 });
             }
@@ -186,11 +129,23 @@ nextBtn.addEventListener('click', () => {
     renderCalendar();
 });
 
-// Init
-async function init() {
-    await fetchAdmins();
-    renderFilter();
-    await fetchEvents();
+// Init – sjekk auth og last events
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        alert("Du må være logget inn som admin for å se dine arrangementer.");
+        window.location.href = "login_page.html";
+        return;
+    }
+
+    // Sjekk admin
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists() || !userDoc.data().isAdmin) {
+        alert("Du har ikke admin-rettigheter.");
+        window.location.href = "login_page.html";
+        return;
+    }
+
+    currentUser = user;
+    await fetchEventsForAdmin(currentUser.uid);
     renderCalendar();
-}
-init();
+});
