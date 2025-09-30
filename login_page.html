@@ -35,26 +35,15 @@
   <p id="message"></p>
 
   <script type="module">
-    // Import Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { auth, db } from "./firebase.js";
+    import { 
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+    //  Now you can use auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, getDoc
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyC8r4Q6c97Yk5Y9fHv2K04QmptL_U6Adds",
-      authDomain: "login-form-59de4.firebaseapp.com",
-      projectId: "login-form-59de4",
-      storageBucket: "login-form-59de4.appspot.com",
-      messagingSenderId: "524532626361",
-      appId: "1:524532626361:web:409c0a04698c30268bfc68"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
 
     // Elements
     const loginForm = document.getElementById('login-form');
@@ -123,6 +112,8 @@ loginForm.addEventListener('submit', async (e) => {
         });
     });
   </script>
+
+  
 </body>
 </html>
 
