@@ -47,6 +47,53 @@ async function fetchEvents() {
     events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
+// Fetch and render upcoming events
+async function renderUpcomingEvents() {
+    const upcomingEventsEl = document.querySelector('.list-group');
+    upcomingEventsEl.innerHTML = ''; // Clear existing content
+
+    try {
+        // Fetch events from Firestore
+        const eventsCol = collection(db, "events");
+        const snapshot = await getDocs(eventsCol);
+
+        // Filter events for the user's organizations
+        const userOrganizations = Object.keys(adminMap).filter(uid => activeAdmins.has(uid));
+        const now = new Date();
+        const upcomingEvents = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(event => {
+                const eventDate = event.datetime.toDate ? event.datetime.toDate() : new Date(event.datetime);
+                return eventDate > now && userOrganizations.includes(event.createdBy);
+            })
+            .sort((a, b) => new Date(a.datetime) - new Date(b.datetime)) // Sort by date
+            .slice(0, 3); // Limit to 3 events
+
+        // Render events
+        if (upcomingEvents.length === 0) {
+            upcomingEventsEl.innerHTML = '<p class="text-muted">No upcoming events.</p>';
+        } else {
+            upcomingEvents.forEach(event => {
+                const eventDate = event.datetime.toDate ? event.datetime.toDate() : new Date(event.datetime);
+                const eventItem = document.createElement('a');
+                eventItem.href = '#';
+                eventItem.className = 'list-group-item list-group-item-action';
+                eventItem.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${event.title}</h5>
+                        <small>${eventDate.toLocaleDateString('no-NB', { day: 'numeric', month: 'long', year: 'numeric' })}</small>
+                    </div>
+                    <p class="mb-1">${event.description || 'No description available.'}</p>
+                `;
+                upcomingEventsEl.appendChild(eventItem);
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching upcoming events:", error);
+        upcomingEventsEl.innerHTML = '<p class="text-danger">Failed to load upcoming events.</p>';
+    }
+}
+
 // Format time for display
 function formatTime(date) {
     const hours = date.getHours().toString().padStart(2, '0');
@@ -192,5 +239,6 @@ async function init() {
     renderFilter();
     await fetchEvents();
     renderCalendar();
+    renderUpcomingEvents();
 }
 init();
