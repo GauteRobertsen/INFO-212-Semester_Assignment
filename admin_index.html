@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Student Calendar</title>
+    <title>Admin - Studentkalendar</title>
 
     <!-- Bootstrap CSS -->
     <link
@@ -11,15 +11,16 @@
     rel="stylesheet"
     >
 
-    <!-- Custom CSS -->
+    <!-- Vanlig CSS -->
     <link rel="stylesheet" href="index.css">
 
 </head>
 <body>
-  <!-- Navigation bar -->
+  <!-- Nav bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Admin Studentkalender</a>
+      <!-- Hamburger Knapp-->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -30,7 +31,7 @@
             <a class="nav-link active" aria-current="page" href="#">Hjem</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Administrer arrangement (admin)</a>
+            <a class="nav-link" href="#">Administrer arrangement</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="login_page.html">Logg ut</a>
@@ -40,7 +41,7 @@
     </div>
   </nav>
 
-  <!-- Main content -->
+  <!-- Overskrift -->
   <div class="container mt-4">
     <h1 class="text-center">Student Calendar</h1>
     <div id="root"></div>
@@ -48,10 +49,10 @@
 
  
 
-    <!-- Calendar + Create-->
+    <!-- Kalender + Event boks-->
      <div class="container mt-4">
       <div class="row">
-        <!-- Calendar: -->
+        <!-- Kalender: -->
         <div class="col-12 col-md-9">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <button id="prevMonth" class="btn btn-primary">&lt; Forrige</button>
@@ -63,35 +64,35 @@
           <div id="calendarDates"></div>
         </div>
 
-        <!-- Create Event Box -->
+        <!-- Event boks -->
         <div class="col-12 col-md-3">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                Create Event
+                Opprett nytt arrangement
                 </div>
                 <div class="card-body">
                 <form id="create-event-form">
-                    <!-- Event Title -->
+                    <!-- Event Tittel -->
                     <div class="mb-3">
-                    <label for="event-title" class="form-label">Title</label>
+                    <label for="event-title" class="form-label">Tittel</label>
                     <input type="text" class="form-control" id="event-title" placeholder="Event title" required>
                     </div>
 
-                    <!-- Date & Time -->
+                    <!-- Dato & Tid -->
                     <div class="mb-3">
-                    <label for="event-datetime" class="form-label">Date & Time</label>
+                    <label for="event-datetime" class="form-label">Dato & Tid</label>
                     <input type="datetime-local" class="form-control" id="event-datetime" required>
                     </div>
 
-                    <!-- Location -->
+                    <!-- Lokasjon -->
                     <div class="mb-3">
-                    <label for="event-location" class="form-label">Location</label>
+                    <label for="event-location" class="form-label">Lokasjon</label>
                     <input type="text" class="form-control" id="event-location" placeholder="Event location" required>
                     </div>
 
-                    <!-- Description -->
+                    <!-- Beskrivelse -->
                     <div class="mb-3">
-                    <label for="event-description" class="form-label">Description</label>
+                    <label for="event-description" class="form-label">Beskrivelse</label>
                     <textarea class="form-control" id="event-description" rows="3" placeholder="Event description"></textarea>
                     </div>
 
