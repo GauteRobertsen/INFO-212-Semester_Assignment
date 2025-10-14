@@ -32,10 +32,73 @@
 }
 
 .calendar-event {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 0.8rem;
-    margin-bottom: 1px;
+  display: inline-block;       
+  max-width: 100%;             
+  padding: 2px 6px;
+  border-radius: 6px;
+  line-height: 1.2;
+  font-weight: 500;
+  margin-bottom: 2px;          
+  background: #eee;           
+  color: #000;                 
+  transition: filter .15s ease;
 }
 
+.calendar-event:hover {
+  filter: brightness(0.95);
+}
+
+.calendar-cell .calendar-day-number {
+  margin-bottom: 0 !important;
+}
+
+.calendar-cell .calendar-day-number + .calendar-event {
+  margin-top: 5px; /* juster etter smak */
+}
+
+
+/* Filter */
+.filter-list .form-check {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .25rem 0;
+}
+
+.filter-header {
+  font-size: .875rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  margin-bottom: .5rem;
+}
+
+[data-filtered="true"] { display: none !important; }
+
+.filter-list .form-check-input {
+  position: absolute;
+  left: -9999px;
+}
+
+.filter-list .form-check-input:focus,
+.filter-list .form-check-input:checked:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.filter-list .form-check-label {
+  cursor: pointer;
+  flex: 1;
+}
+
+.filter-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+  flex: 0 0 14px;
+  margin-right: 0.25rem;
+  transition: background-color .15s ease;
+  background: #ccc;
+}

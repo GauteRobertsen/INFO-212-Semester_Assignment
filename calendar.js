@@ -103,27 +103,39 @@ function formatTime(date) {
 
 // Render filter checkboxes
 function renderFilter() {
+    adminFilterEl.classList.add('filter-list');
     adminFilterEl.innerHTML = '';
     for (const [uid, name] of Object.entries(adminMap)) {
         const div = document.createElement('div');
         div.className = 'form-check';
-
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'form-check-input';
         checkbox.id = `filter-${uid}`;
         checkbox.checked = activeAdmins.has(uid);
-
         const label = document.createElement('label');
         label.className = 'form-check-label';
         label.htmlFor = `filter-${uid}`;
-        label.textContent = name;
-        label.style.color = adminColors[uid];
 
+        const dot = document.createElement('span'); // lager fargeprikken
+        dot.className = 'filter-dot';
+        if (checkbox.checked) {
+            dot.style.backgroundColor = adminColors[uid];
+        }
+        const text = document.createElement('span');
+        text.textContent = name;
+        label.appendChild(dot);
+        label.appendChild(text);
         checkbox.addEventListener('change', () => {
-            if (checkbox.checked) activeAdmins.add(uid);
-            else activeAdmins.delete(uid);
+            if (checkbox.checked) {
+                activeAdmins.add(uid);
+                dot.style.backgroundColor = adminColors[uid]; 
+            } else {
+                activeAdmins.delete(uid);
+                dot.style.backgroundColor = ''; 
+            }
             renderCalendar();
+            renderUpcomingEvents();
         });
 
         div.appendChild(checkbox);
@@ -208,9 +220,11 @@ function renderCalendar() {
                     const evDate = ev.datetime.toDate ? ev.datetime.toDate() : new Date(ev.datetime);
                     const evDiv = document.createElement('div');
                     evDiv.className = 'calendar-event small text-truncate';
-                    const adminName = adminMap[ev.createdBy] || ev.createdBy;
                     evDiv.textContent = `${formatTime(evDate)} ${ev.title}`;
-                    evDiv.style.color = adminColors[ev.createdBy] || '#000';
+                    const bg = adminColors[ev.createdBy] || '#777';
+                    evDiv.style.backgroundColor = bg;
+                    evDiv.style.color = '#fff';
+                    evDiv.style.boxShadow = '0 0 0 1px rgba(0,0,0,.08) inset';
                     col.appendChild(evDiv);
                 });
             }
@@ -237,6 +251,7 @@ nextBtn.addEventListener('click', () => {
 async function init() {
     await fetchAdmins();
     renderFilter();
+    adminFilterEl.classList.add('filter-list');
     await fetchEvents();
     renderCalendar();
     renderUpcomingEvents();
