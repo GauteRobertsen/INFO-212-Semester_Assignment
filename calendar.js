@@ -1,5 +1,8 @@
 import { db } from './firebase.js';
 import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 
 // DOM Elements
 const monthYearEl = document.getElementById('monthYear');
@@ -22,6 +25,27 @@ const COLORS = [
     '#FF5733', '#33C1FF', '#33FF57', '#FF33A8', '#FFC733', '#8D33FF', '#33FFF3'
 ];
 
+const auth = getAuth();
+let userSubscriptions = []; // Lagrer hvilke admin UID-er brukeren abonnerer på
+
+// --- Hent brukerens abonnementer ---
+async function fetchUserSubscriptions() {
+    return new Promise((resolve) => {
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login_page.html";
+                return;
+            }
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                userSubscriptions = userSnap.data().subscribedTo || [];
+            }
+            resolve();
+        });
+    });
+}
+
 // Fetch admin users
 async function fetchAdmins() {
     const usersCol = collection(db, "users");
@@ -38,6 +62,17 @@ async function fetchAdmins() {
         activeAdmins.add(uid); // Initially all admins active
         i++;
     });
+
+    // Filtrer slik at kun abonnert admins vises
+    adminMap = Object.fromEntries(
+        Object.entries(adminMap).filter(([uid]) => userSubscriptions.includes(uid))
+    );
+    adminColors = Object.fromEntries(
+        Object.entries(adminColors).filter(([uid]) => userSubscriptions.includes(uid))
+    );
+
+    // Sett aktive admins til alle abonnementene
+    activeAdmins = new Set(Object.keys(adminMap));
 }
 
 // Fetch all events
@@ -249,9 +284,9 @@ nextBtn.addEventListener('click', () => {
 
 // Init
 async function init() {
-    await fetchAdmins();
+    await fetchUserSubscriptions(); // hent brukerens abonnementer
+    await fetchAdmins();            // hent admins (filtrert til kun abonnert)
     renderFilter();
-    adminFilterEl.classList.add('filter-list');
     await fetchEvents();
     renderCalendar();
     renderUpcomingEvents();

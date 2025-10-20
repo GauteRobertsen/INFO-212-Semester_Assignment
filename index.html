@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Calendar</title>
+    <title>Studentkalendar</title>
 
     <!-- Bootstrap CSS -->
     <link
@@ -30,7 +30,7 @@
             <a class="nav-link active" aria-current="page" href="#">Hjem</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Administrer arrangement (admin)</a>
+            <a class="nav-link" href="subscriptions.html">Mine organisasjoner</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="login_page.html">Logg ut</a>
@@ -42,82 +42,77 @@
 
   <!-- Main content -->
   <div class="container mt-4">
-    <h1 class="text-center">Student Calendar</h1>
+    <h1 class="text-center">Student Kalendar</h1>
     <div id="root"></div>
   </div>
 
  
 
-    <!-- Calendar + Filter-->
-     <div class="container mt-4">
-      <div class="row">
-        <!-- Calendar: -->
-        <div class="col-12 col-md-9">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <button id="prevMonth" class="btn btn-primary">&lt; Forrige</button>
-            <h3 id="monthYear" class="mb-0"></h3>
-            <button id="nextMonth" class="btn btn-primary">Neste &gt;</button>
-          </div>
-
-          <div id="calendarDays" class="row text-center fw-bold"></div>
-          <div id="calendarDates"></div>
+  <!-- Calendar + Filter-->
+    <div class="container mt-4">
+    <div class="row">
+      <!-- Calendar: -->
+      <div class="col-12 col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <button id="prevMonth" class="btn btn-primary">&lt; Forrige</button>
+          <h3 id="monthYear" class="mb-0"></h3>
+          <button id="nextMonth" class="btn btn-primary">Neste &gt;</button>
         </div>
 
-        <!-- Filter: -->
-        <div class="col-12 col-md-3">
-          <div class="card">
-            <div class="card-header bg-primary text-white">
-              Filter
-            </div>
-            <div class="card-body">
-              <p class="text-muted mb-2">Select organizations</p>
-              <div id="adminFilter" class="border p-2 rounded bg-light">
-                <!-- Checkboxes will be injected here by JS -->
-              </div>
+        <div id="calendarDays" class="row text-center fw-bold"></div>
+        <div id="calendarDates"></div>
+      </div>
+
+      <!-- Filter: -->
+      <div class="col-12 col-md-3">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            Filter
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-2">Velg organisasjon</p>
+            <div id="adminFilter" class="border p-2 rounded bg-light">
+              <!-- Checkboxes will be injected here by JS -->
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+
+  <!-- Upcoming events -->
+  <div class="container mt-4">
+    <h2>Kommende arrangement</h2>
+    <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Arrangement 1</h5>
+          <small>10. oktober 2024</small>
+        </div>
+        <p class="mb-1">Beskrivelse av arrangement 1.</p>
+      </a>
+      <a href="#" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Arrangement 2</h5>
+          <small>15. oktober 2024</small>
+        </div>
+        <p class="mb-1">Beskrivelse av arrangement 2.</p>
+      </a>
+      <a href="#" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Arrangement 3</h5>
+          <small>20. oktober 2024</small>
+        </div>
+        <p class="mb-1">Beskrivelse av arrangement 3.</p>
+      </a>
+  </div>
 
 
 
+  <script type="module" src="calendar.js"></script>
 
-
-    <!-- Upcoming events -->
-    <div class="container mt-4">
-      <h2>Kommende arrangement</h2>
-      <div class="list-group">
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Arrangement 1</h5>
-            <small>10. oktober 2024</small>
-          </div>
-          <p class="mb-1">Beskrivelse av arrangement 1.</p>
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Arrangement 2</h5>
-            <small>15. oktober 2024</small>
-          </div>
-          <p class="mb-1">Beskrivelse av arrangement 2.</p>
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Arrangement 3</h5>
-            <small>20. oktober 2024</small>
-          </div>
-          <p class="mb-1">Beskrivelse av arrangement 3.</p>
-        </a>
-    </div>
-
-
-
-
-
-    <script type="module" src="calendar.js"></script>
-
-    <!-- Bootstrap JS bundle (required for responsive navbar toggling) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS bundle (required for responsive navbar toggling) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
