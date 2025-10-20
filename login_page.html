@@ -40,7 +40,7 @@
       signInWithEmailAndPassword, 
       createUserWithEmailAndPassword 
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { doc, getDoc, setDoc} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     //  Now you can use auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, getDoc
 
@@ -95,22 +95,32 @@ loginForm.addEventListener('submit', async (e) => {
 
 
 
-    // Handle signup
-    signupForm.addEventListener('submit', (e) => {
+    // === Handle signup ===
+    signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
 
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          message.textContent = "Account created for: " + userCredential.user.email;
-          signupForm.reset();
-          // Optionally switch to login form automatically
-        })
-        .catch((error) => {
-          message.textContent = "Error: " + error.message;
+      try {
+        // Create new Firebase Auth user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        // Create corresponding Firestore user document
+        await setDoc(doc(db, "users", uid), {
+          email: email,
+          isAdmin: false,
+          subscribedTo: []
         });
+
+        message.textContent = "Account created for: " + userCredential.user.email;
+        signupForm.reset();
+      } catch (error) {
+        message.textContent = "Error: " + error.message;
+      }
     });
+
+
   </script>
 
   
