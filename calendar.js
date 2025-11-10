@@ -12,6 +12,17 @@ const prevBtn = document.getElementById('prevMonth');
 const nextBtn = document.getElementById('nextMonth');
 const adminFilterEl = document.getElementById('adminFilter');
 
+// Adding Today button next to monthYear - This will take you back to todays date if you are on another month
+let todayBtn = document.getElementById('todayBtn');
+if (!todayBtn && monthYearEl && monthYearEl.parentNode) {
+    todayBtn = document.createElement('button');
+    todayBtn.id = 'todayBtn';
+    todayBtn.type = 'button';
+    todayBtn.className = 'btn btn-sm btn-primary ms-2';
+    todayBtn.textContent = 'I dag';
+    monthYearEl.parentNode.insertBefore(todayBtn, monthYearEl.nextSibling);
+}
+
 const daysOfWeek = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
 let currentDate = new Date();
 
@@ -269,6 +280,7 @@ function renderCalendar() {
 
         calendarDatesEl.appendChild(row);
     }
+    updateTodayButtonState();
 }
 
 // Month navigation
@@ -280,6 +292,40 @@ prevBtn.addEventListener('click', () => {
 nextBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar();
+});
+
+// Adding a function to check whether we are on the right month, if so: the button is greyed out/unclickable. 
+function updateTodayButtonState() {
+    if (!todayBtn) return;
+    const now = new Date();
+    const isCurrentMonth = currentDate.getFullYear() === now.getFullYear() &&
+                           currentDate.getMonth() === now.getMonth();
+    todayBtn.disabled = isCurrentMonth;
+    todayBtn.classList.toggle('btn-primary', !isCurrentMonth);
+    todayBtn.classList.toggle('btn-secondary', isCurrentMonth);
+}
+
+if (todayBtn) {
+    todayBtn.addEventListener('click', () => {
+        const now = new Date();
+        currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        renderCalendar();
+        renderUpcomingEvents();
+        updateTodayButtonState();
+    });
+}
+
+// Update button state after navigation
+prevBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+    updateTodayButtonState();
+});
+
+nextBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+    updateTodayButtonState();
 });
 
 // Init
