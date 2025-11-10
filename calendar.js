@@ -287,11 +287,15 @@ function renderCalendar() {
 prevBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     renderCalendar();
+    renderUpcomingEvents();
+    updateTodayButtonState();
 });
 
 nextBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar();
+    renderUpcomingEvents();
+    updateTodayButtonState();
 });
 
 // Adding a function to check whether we are on the right month, if so: the button is greyed out/unclickable. 
