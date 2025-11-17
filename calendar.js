@@ -8,20 +8,11 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-
 const monthYearEl = document.getElementById('monthYear');
 const calendarDaysEl = document.getElementById('calendarDays');
 const calendarDatesEl = document.getElementById('calendarDates');
+const todayBtn = document.getElementById('todayBtn')
 const prevBtn = document.getElementById('prevMonth');
 const nextBtn = document.getElementById('nextMonth');
 const adminFilterEl = document.getElementById('adminFilter');
 
-// Adding Today button next to monthYear - This will take you back to todays date if you are on another month
-let todayBtn = document.getElementById('todayBtn');
-if (!todayBtn && monthYearEl && monthYearEl.parentNode) {
-    todayBtn = document.createElement('button');
-    todayBtn.id = 'todayBtn';
-    todayBtn.type = 'button';
-    todayBtn.className = 'btn btn-sm btn-primary ms-2';
-    todayBtn.textContent = 'I dag';
-    monthYearEl.parentNode.insertBefore(todayBtn, monthYearEl.nextSibling);
-}
 
 const daysOfWeek = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
 let currentDate = new Date();
