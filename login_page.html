@@ -1,129 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Login / Signup</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; }
-    .hidden { display: none; }
-    form { margin-bottom: 1rem; }
-    input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; }
-    button { width: 100%; padding: 0.5rem; }
-    .toggle-link { color: blue; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 0.5rem; }
-  </style>
+  <title>Logg inn – Studentkalender</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
-  <h1 id="form-title">Log In</h1>
+  <!-- Navigation bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">Studentkalender</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Hjem</a></li>
+          <li class="nav-item"><a class="nav-link" href="subscriptions.html">Mine organisasjoner</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-  <!-- Login form -->
-  <form id="login-form">
-    <input type="email" id="login-email" placeholder="Email" required>
-    <input type="password" id="login-password" placeholder="Password" required>
-    <button type="submit">Log In</button>
-    <span class="toggle-link" id="show-signup">Don’t have an account? Sign up</span>
-  </form>
+  <!-- main -->
+  <main class="auth-shell">
+    <div class="card auth-card">
+      <div class="card-header auth-card-header">
+        <h1 class="h4 m-0" id="form-title">Logg inn</h1>
+      </div>
 
-  <!-- Signup form (hidden initially) -->
-  <form id="signup-form" class="hidden">
-    <input type="email" id="signup-email" placeholder="Email" required>
-    <input type="password" id="signup-password" placeholder="Password" required>
-    <button type="submit">Sign Up</button>
-    <span class="toggle-link" id="show-login">Already have an account? Log in</span>
-  </form>
+      <div class="card-body">
+        <!-- meldinger -->
+        <div id="message" class="alert d-none" role="alert"></div>
 
-  <p id="message"></p>
+        <!-- Login form -->
+        <form id="login-form" novalidate>
+          <div class="mb-3">
+            <label for="login-email" class="form-label">E-post</label>
+            <input type="email" class="form-control" id="login-email" placeholder="din@epost.no" required>
+          </div>
+          <div class="mb-3">
+            <label for="login-password" class="form-label">Passord</label>
+            <input type="password" class="form-control" id="login-password" placeholder="Passord" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Logg inn</button>
+
+          <p class="toggle-line">
+            <span class="text-muted">Har du ikke konto?</span>
+            <a class="link-like" id="show-signup">Opprett konto</a>
+          </p>
+        </form>
+
+        <!-- Signup form -->
+        <form id="signup-form" class="d-none" novalidate>
+          <div class="mb-3">
+            <label for="signup-email" class="form-label">E-post</label>
+            <input type="email" class="form-control" id="signup-email" placeholder="din@epost.no" required>
+          </div>
+          <div class="mb-3">
+            <label for="signup-password" class="form-label">Passord</label>
+            <input type="password" class="form-control" id="signup-password" placeholder="Minst 6 tegn" minlength="6" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Opprett konto</button>
+
+          <p class="toggle-line">
+            <span class="text-muted">Har du allerede konto?</span>
+            <a class="link-like" id="show-login">Logg inn</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </main>
 
   <script type="module">
     import { auth, db } from "./firebase.js";
-    import { 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword 
+    import {
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { doc, getDoc, setDoc} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    //  Now you can use auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, getDoc
-
-
-    // Elements
-    const loginForm = document.getElementById('login-form');
+    const loginForm  = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const showSignup = document.getElementById('show-signup');
-    const showLogin = document.getElementById('show-login');
-    const message = document.getElementById('message');
-    const formTitle = document.getElementById('form-title');
+    const showLogin  = document.getElementById('show-login');
+    const messageBox = document.getElementById('message');
+    const formTitle  = document.getElementById('form-title');
+
+    const show = el => el.classList.remove('d-none');
+    const hide = el => el.classList.add('d-none');
 
     // Toggle forms
-    showSignup.addEventListener('click', () => {
-      loginForm.classList.add('hidden');
-      signupForm.classList.remove('hidden');
-      formTitle.textContent = 'Sign Up';
-      message.textContent = '';
+    showSignup?.addEventListener('click', () => {
+      hide(loginForm); show(signupForm);
+      formTitle.textContent = 'Opprett konto';
+      messageBox.className = 'alert d-none'; messageBox.textContent = '';
     });
-    showLogin.addEventListener('click', () => {
-      signupForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      formTitle.textContent = 'Log In';
-      message.textContent = '';
+    showLogin?.addEventListener('click', () => {
+      hide(signupForm); show(loginForm);
+      formTitle.textContent = 'Logg inn';
+      messageBox.className = 'alert d-none'; messageBox.textContent = '';
     });
 
-    // Handle login
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
+    // Meldingshjelpere
+    function showError(t){ messageBox.textContent=t; messageBox.className='alert alert-danger'; }
+    function showSuccess(t){ messageBox.textContent=t; messageBox.className='alert alert-success'; }
 
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
 
-    // Check Firestore for admin status
-    const userDocRef = doc(db, "users", uid);
-    const userDocSnap = await getDoc(userDocRef);
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const uid = cred.user.uid;
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists() && snap.data().isAdmin) {
+          window.location.href = "admin_index.html";
+        } else {
+          window.location.href = "index.html";
+        }
+      } catch (err) {
+        showError("Kunne ikke logge inn: " + err.message);
+      }
+    });
 
-    if (userDocSnap.exists() && userDocSnap.data().isAdmin) {
-      // Admin user → redirect to admin_index.html
-      window.location.href = "admin_index.html";
-    } else {
-      // Regular user → redirect to normal index.html
-      window.location.href = "index.html";
-    }
-  } catch (error) {
-    message.textContent = "Error: " + error.message;
-  }
-});
-
-
-
-    // === Handle signup ===
+    // Signup
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
 
       try {
-        // Create new Firebase Auth user
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = userCredential.user.uid;
-
-        // Create corresponding Firestore user document
-        await setDoc(doc(db, "users", uid), {
-          email: email,
-          isAdmin: false,
-          subscribedTo: []
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", cred.user.uid), {
+          email, isAdmin:false, subscribedTo:[]
         });
-
-        message.textContent = "Account created for: " + userCredential.user.email;
+        showSuccess("Konto opprettet for: " + cred.user.email);
         signupForm.reset();
-      } catch (error) {
-        message.textContent = "Error: " + error.message;
+      } catch (err) {
+        showError("Kunne ikke opprette konto: " + err.message);
       }
     });
-
-
   </script>
 
-  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
