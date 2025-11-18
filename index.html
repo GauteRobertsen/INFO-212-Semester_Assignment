@@ -58,10 +58,14 @@
       <!-- Calendar: -->
       <div class="col-12 col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h3 id="monthYear" class="mb-0"></h3>
-          <button id="todayBtn" class="btn btn-primary">I dag</button>
-          <button id="prevMonth" class="btn btn-primary">&lt; Forrige</button>
-          <button id="nextMonth" class="btn btn-primary">Neste &gt;</button>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h3 id="monthYear" class="me-4"></h3>
+            <button id="todayBtn" class="btn btn-primary">I dag</button>
+          </div>
+          <div>
+            <button id="prevMonth" class="btn btn-primary ">&lt; Forrige</button>
+            <button id="nextMonth" class="btn btn-primary">Neste &gt;</button>
+          </div>
         </div>
 
         <div id="calendarDays" class="row text-center fw-bold"></div>
