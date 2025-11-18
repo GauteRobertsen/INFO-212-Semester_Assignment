@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="index.css">
 
 </head>
-<body style = "display: none;">
+<body style="display: none;">
   <!-- Navigation bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
@@ -55,7 +55,14 @@
             <select id="orgDropdown" class="form-select mb-3">
               <option value="">Velg organisasjon</option>
             </select>
-            <button id="subscribeBtn" class="btn btn-success w-100">Abonner</button>
+            <button id="subscribeBtn" class="btn btn-success w-100">Abonner (send forespørsel)</button>
+
+            <!-- Pending requests from this user -->
+            <hr>
+            <h6>Forespørsler som venter</h6>
+            <ul id="pendingList" class="list-group small">
+              <!-- pending requests will appear here -->
+            </ul>
           </div>
         </div>
       </div>
