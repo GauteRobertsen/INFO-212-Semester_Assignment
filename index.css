@@ -102,3 +102,60 @@
   transition: background-color .15s ease;
   background: #ccc;
 }
+/* For log-in */
+.auth-shell{
+  min-height: calc(100vh - 56px);
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(1200px 600px at 100% -100%, #cfe2ff 0, transparent 60%),
+    radial-gradient(1200px 600px at -10% 120%, #e7f1ff 0, transparent 60%),
+    #f5f8ff;
+}
+
+.auth-card{
+  width: 100%;
+  max-width: 440px;
+  border: 0;
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 30px rgba(13,110,253,.12);
+}
+
+.auth-card-header{
+  background: linear-gradient(180deg, #0d6efd, #0b6ffd);
+  color: #fff;
+  border: 0;
+  padding: 1.1rem 1.25rem;
+}
+
+.btn-brand{
+  background: #0b6ffd;
+  border-color: #0b6ffd;
+  border-radius: .8rem;
+  padding: .7rem 1rem;
+  font-weight: 600;
+}
+.btn-brand:hover{
+  background: #0b6ffd;
+  border-color: #0b6ffd;
+}
+
+form .form-control:focus{
+  box-shadow: 0 0 0 .25rem rgba(13,110,253,.15);
+  border-color: #0b6ffd;
+  outline: 0;
+}
+
+.toggle-line{
+  text-align: center;
+  margin-top: .75rem;
+  font-size: .95rem;
+}
+.toggle-line .link-like{
+  color: #0b6ffd;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.toggle-line .link-like:hover{ text-decoration: underline; }
