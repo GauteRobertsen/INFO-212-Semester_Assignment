@@ -36,15 +36,27 @@ async function fetchUserSubscriptions() {
                 window.location.href = "login_page.html";
                 return;
             }
+
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
+
             if (userSnap.exists()) {
-                userSubscriptions = userSnap.data().subscribedTo || [];
+                const data = userSnap.data();
+                userSubscriptions = data.subscribedTo || [];
+
+                // ⭐ IMPORTANT FIX:
+                // Admins must be subscribed to themselves,
+                // otherwise they won't see their own events.
+                if (data.isAdmin && !userSubscriptions.includes(user.uid)) {
+                    userSubscriptions.push(user.uid);
+                }
             }
+
             resolve();
         });
     });
 }
+
 
 // Fetch admin users
 async function fetchAdmins() {
