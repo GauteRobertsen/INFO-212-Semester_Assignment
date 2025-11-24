@@ -31,19 +31,16 @@ onAuthStateChanged(auth, async (user) => {
 
   onSnapshot(q, async (snap) => {
     requestsList.innerHTML = '';
-    if (snap.empty) {
-      const li = document.createElement('li');
-      li.className = 'list-group-item text-muted';
-      li.textContent = 'Ingen ventende forespørsler.';
-      requestsList.appendChild(li);
-      return;
-    }
 
-    // Use for..of so we can await inside the loop
+    let hasPending = false;
+
     for (const docSnap of snap.docs) {
       const req = { id: docSnap.id, ...docSnap.data() };
+
       // Only show pending requests
       if (req.status !== 'pending') continue;
+
+      hasPending = true;
 
       // Fetch the user's email using the UID stored in req.from
       let emailOrUid = req.from;
@@ -53,7 +50,6 @@ onAuthStateChanged(auth, async (user) => {
           emailOrUid = userDoc.data().email;
         }
       } catch (err) {
-        // If fetching fails, fall back to showing the UID
         console.error('Failed to load user email for', req.from, err);
       }
 
@@ -82,6 +78,20 @@ onAuthStateChanged(auth, async (user) => {
 
       requestsList.appendChild(li);
     }
+
+    // Show empty message if no pending requests
+    if (!hasPending) {
+      const li = document.createElement('li');
+      li.className = 'list-group-item text-muted text-center py-5';
+      li.innerHTML = `
+        <div>
+          <div style="font-size: 2.5rem;">📭</div>
+          <div class="mt-2 fw-semibold">Ingen ventende forespørsler</div>
+          <div class="small">Du vil se nye abonnementsforespørsler her når noen abonnerer på deg.</div>
+        </div>
+      `;
+      requestsList.appendChild(li);
+    }
   });
 
   document.body.style.display = 'block';
@@ -100,10 +110,10 @@ async function acceptRequest(adminId, requestId, subscriberId) {
     // Update the request status
     batch.update(reqRef, { status: 'accepted', handledAt: serverTimestamp() });
 
-    // Add the adminId to subscriber's subscribedTo array (create array if missing)
+    // Add the adminId to subscriber's subscribedTo array
     batch.update(subscriberRef, { subscribedTo: arrayUnion(adminId) });
 
-    // Optional: add a subscribers doc under admin for quick listing
+    // Optional: add a subscribers doc under admin
     batch.set(adminSubscriberRef, { userId: subscriberId, subscribedAt: serverTimestamp() });
 
     await batch.commit();
