@@ -7,6 +7,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/fi
 const monthYearEl = document.getElementById('monthYear');
 const calendarDaysEl = document.getElementById('calendarDays');
 const calendarDatesEl = document.getElementById('calendarDates');
+const todayBtn = document.getElementById('todayBtn')
 const prevBtn = document.getElementById('prevMonth');
 const nextBtn = document.getElementById('nextMonth');
 
@@ -116,6 +117,54 @@ function renderCalendar() {
 
         calendarDatesEl.appendChild(row);
     }
+    updateTodayButtonState();
+}
+
+function renderUpcomingEvents() {
+    const upcomingEventsEl = document.querySelector('.list-group') || document.querySelector('.admin-upcoming-list');
+    if (!upcomingEventsEl) return;
+    upcomingEventsEl.innerHTML = ''; // clear existing content
+
+    try {
+        const now = new Date();
+        // events is already fetched for the admin (fetchEventsForAdmin)
+        const upcoming = events
+            .map(ev => ({ id: ev.id, ...ev })) // ensure objects
+            .filter(ev => {
+                const evDate = ev.datetime && ev.datetime.toDate ? ev.datetime.toDate() : new Date(ev.datetime);
+                return evDate > now && ev.createdBy === currentUser.uid;
+            })
+            .sort((a, b) => {
+                const aDate = a.datetime && a.datetime.toDate ? a.datetime.toDate() : new Date(a.datetime);
+                const bDate = b.datetime && b.datetime.toDate ? b.datetime.toDate() : new Date(b.datetime);
+                return aDate - bDate;
+            })
+            .slice(0, 3);
+
+        if (upcoming.length === 0) {
+            upcomingEventsEl.innerHTML = '<p class="text-muted">Ingen kommende arrangementer.</p>';
+            return;
+        }
+
+        upcoming.forEach(ev => {
+            const evDate = ev.datetime && ev.datetime.toDate ? ev.datetime.toDate() : new Date(ev.datetime);
+            const item = document.createElement('a');
+            item.href = '#';
+            item.className = 'list-group-item list-group-item-action';
+            item.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${ev.title}</h5>
+                    <small>${evDate.toLocaleDateString('no-NB', { day: 'numeric', month: 'long', year: 'numeric' })}</small>
+                </div>
+                <p class="mb-1">${ev.description || ''}</p>
+                <small class="text-muted">${formatTime(evDate)}</small>
+            `;
+            upcomingEventsEl.appendChild(item);
+        });
+    } catch (err) {
+        console.error('admin renderUpcomingEvents error:', err);
+        upcomingEventsEl.innerHTML = '<p class="text-danger">Kunne ikke laste kommende arrangementer.</p>';
+    }
 }
 
 // Month navigation
@@ -128,6 +177,28 @@ nextBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar();
 });
+
+function updateTodayButtonState() {
+    if (!todayBtn) return;
+    const now = new Date();
+    const isCurrentMonth = currentDate.getFullYear() === now.getFullYear() &&
+                           currentDate.getMonth() === now.getMonth();
+    todayBtn.disabled = isCurrentMonth;
+    todayBtn.classList.toggle('btn-primary', !isCurrentMonth);
+    todayBtn.classList.toggle('btn-secondary', isCurrentMonth);
+}
+
+// Minimal Today button click handler if button exists
+if (todayBtn) {
+    todayBtn.addEventListener('click', () => {
+        const now = new Date();
+        currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        renderCalendar();
+        renderUpcomingEvents();
+        updateTodayButtonState();
+    });
+}
+
 
 // Init – sjekk auth og last events
 onAuthStateChanged(auth, async (user) => {
@@ -148,4 +219,6 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     await fetchEventsForAdmin(currentUser.uid);
     renderCalendar();
+    renderUpcomingEvents();
+    updateTodayButtonState();
 });

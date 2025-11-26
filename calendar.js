@@ -8,9 +8,11 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-
 const monthYearEl = document.getElementById('monthYear');
 const calendarDaysEl = document.getElementById('calendarDays');
 const calendarDatesEl = document.getElementById('calendarDates');
+const todayBtn = document.getElementById('todayBtn')
 const prevBtn = document.getElementById('prevMonth');
 const nextBtn = document.getElementById('nextMonth');
 const adminFilterEl = document.getElementById('adminFilter');
+
 
 const daysOfWeek = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
 let currentDate = new Date();
@@ -118,7 +120,7 @@ async function renderUpcomingEvents() {
 
         // Render events
         if (upcomingEvents.length === 0) {
-            upcomingEventsEl.innerHTML = '<p class="text-muted">No upcoming events.</p>';
+            upcomingEventsEl.innerHTML = '<p class="text-muted">Ingen kommende arrangementer.</p>';
         } else {
             upcomingEvents.forEach(event => {
                 const eventDate = event.datetime.toDate ? event.datetime.toDate() : new Date(event.datetime);
@@ -281,18 +283,45 @@ function renderCalendar() {
 
         calendarDatesEl.appendChild(row);
     }
+    updateTodayButtonState();
 }
 
 // Month navigation
 prevBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     renderCalendar();
+    renderUpcomingEvents();
+    updateTodayButtonState();
 });
 
 nextBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar();
+    renderUpcomingEvents();
+    updateTodayButtonState();
 });
+
+// Adding a function to check whether we are on the right month, if so: the button is greyed out/unclickable. 
+function updateTodayButtonState() {
+    if (!todayBtn) return;
+    const now = new Date();
+    const isCurrentMonth = currentDate.getFullYear() === now.getFullYear() &&
+                           currentDate.getMonth() === now.getMonth();
+    todayBtn.disabled = isCurrentMonth;
+    todayBtn.classList.toggle('btn-primary', !isCurrentMonth);
+    todayBtn.classList.toggle('btn-secondary', isCurrentMonth);
+}
+
+if (todayBtn) {
+    todayBtn.addEventListener('click', () => {
+        const now = new Date();
+        currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        renderCalendar();
+        renderUpcomingEvents();
+        updateTodayButtonState();
+    });
+}
+
 
 // Init
 async function init() {
