@@ -108,7 +108,7 @@ async function renderUpcomingEvents() {
 
         // Render events
         if (upcomingEvents.length === 0) {
-            upcomingEventsEl.innerHTML = '<p class="text-muted">No upcoming events.</p>';
+            upcomingEventsEl.innerHTML = '<p class="text-muted">Ingen kommende arrangementer.</p>';
         } else {
             upcomingEvents.forEach(event => {
                 const eventDate = event.datetime.toDate ? event.datetime.toDate() : new Date(event.datetime);
@@ -310,18 +310,6 @@ if (todayBtn) {
     });
 }
 
-// Update button state after navigation
-prevBtn.addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
-    updateTodayButtonState();
-});
-
-nextBtn.addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar();
-    updateTodayButtonState();
-});
 
 // Init
 async function init() {
